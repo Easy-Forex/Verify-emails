@@ -1,0 +1,7 @@
+foo@bar.com
+bar@foo.com
+some@thing.com
+leonidm@easy-forex.com
+leonid@mamchenkov.net
+foo@bar.com
+thing@some.com
