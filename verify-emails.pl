@@ -101,10 +101,6 @@ For the actual email address checks.
 
 Leonid Mamchenkov <leonidm@easy-forex.com>
 
-=head1 COPYRIGHT
-
-(C) Copyright 2013, Blue Capital Markets Ltd
-
 =cut
 
 use strict;

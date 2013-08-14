@@ -78,6 +78,3 @@ REQUIREMENTS
 AUTHOR
     Leonid Mamchenkov <leonidm@easy-forex.com>
 
-COPYRIGHT
-    (C) Copyright 2013, Blue Capital Markets Ltd
-
