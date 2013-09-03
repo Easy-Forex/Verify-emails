@@ -18,6 +18,18 @@ OPTIONS
         This parameter can be used to specify the number of maximum parallel
         child processes. If not given, the default of 20 is used.
 
+    --from_email (optional)
+        Example: --from_email=someone@here.com
+
+        This parameter can be used to specify the FROM email address for
+        SMTP checks. If not given, the default of check@user.com is used.
+
+    --from_domain (optional)
+        Example: --from_domain=here.com
+
+        This parameter can be used to specify the EHLO domain for SMTP
+        checks. If not given, the domain of the from_email option is used.
+
     --blacklist (optional)
         Example: --blacklist=blacklist.txt
 

@@ -29,6 +29,20 @@ Example: --children=10
 This parameter can be used to specify the number of maximum parallel child
 processes.  If not given, the default of 20 is used.
 
+=item --from_email (optional)
+
+Example: --from_email=someone@here.com
+
+This parameter can be used to specify the FROM email address for SMTP checks.
+If not given, the default of check@user.com is used.
+
+=item --from_domain (optional)
+
+Example: --from_domain=here.com
+
+This parameter can be used to specify the EHLO domain for SMTP checks.
+If not given, the domain of the from_email option is used.
+
 =item --blacklist (optional)
 
 Example: --blacklist=blacklist.txt
@@ -112,11 +126,15 @@ use Mail::CheckUser qw(check_email last_check);
 my $emails_file = '';
 my $blacklist_file = '';
 my $max_children = 20;
+my $from_email = 'check@user.com';
+my $from_domain = '';
 my $output_format = "%email%,%status%,%reason%\n"; # simple CSV
 
 GetOptions(
 	'emails=s' => \$emails_file,
 	'children=i' => \$max_children,
+	'from_email=s' => \$from_email,
+	'from_domain=s' => \$from_domain,
 	'blacklist=s' => \$blacklist_file,
 	'output=s' => \$output_format,
 );
@@ -130,6 +148,18 @@ my @emails = get_emails($emails_file);
 if ($blacklist_file) {
 	@emails = clean_emails($blacklist_file, @emails);
 }
+
+# If no domain was given, then use the domain from FROM email
+if (!$from_domain && $from_email) {
+	$from_domain = $from_email;
+	$from_domain =~ s/^.*?@//;
+}
+
+# Mail::CheckUser configuration
+$Mail::CheckUser::Treat_Timeout_As_Fail = 1;
+$Mail::CheckUser::Treat_Full_As_Fail = 1;
+$Mail::CheckUser::Sender_Addr = $from_email;
+$Mail::CheckUser::Helo_Domain = $from_domain;
 
 my $pm = Parallel::ForkManager->new($max_children);
 
