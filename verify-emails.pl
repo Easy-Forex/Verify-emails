@@ -123,6 +123,9 @@ use List::MoreUtils qw(uniq);
 use Parallel::ForkManager;
 use Mail::CheckUser qw(check_email last_check);
 
+# Verbose output to STDERR
+use constant DEBUG => 1;
+
 my $emails_file = '';
 my $blacklist_file = '';
 my $max_children = 20;
@@ -160,11 +163,39 @@ $Mail::CheckUser::Treat_Timeout_As_Fail = 1;
 $Mail::CheckUser::Treat_Full_As_Fail = 1;
 $Mail::CheckUser::Sender_Addr = $from_email;
 $Mail::CheckUser::Helo_Domain = $from_domain;
+$Mail::CheckUser::Timeout = 15;
+#$Mail::CheckUser::Debug = 1 if DEBUG;
 
 my $pm = Parallel::ForkManager->new($max_children);
 
+$pm->run_on_start(
+	sub {
+		my ($pid, $ident) = @_;
+		print STDERR (localtime) . " PID [ $pid ] START [$ident]\n" if DEBUG;
+	}
+);
+$pm->run_on_finish(
+	sub {
+		my ($pid, $exit_code, $ident, $signal, $core, $data) = @_;
+		print STDERR (localtime) . " PID [ $pid ] FINISH [$ident]\n" if DEBUG;
+		if ($data) {
+			print STDERR (localtime) . " PID [ $pid ] HIT [$ident]\n" if DEBUG;
+			print $$data;
+		}
+		else {
+			print STDERR (localtime) . " PID [ $pid ] MISSED [$ident]\n";
+		}
+	}
+);
+$pm->run_on_wait(
+	sub {
+		print STDERR (localtime) . " Waiting ...\n" if DEBUG;
+	},
+	3
+);
+
 foreach my $email (@emails) {
-	$pm->start and next; # do the fork
+	$pm->start($email) and next; # do the fork
 
 	my $status;
 	my $reason = '';
@@ -189,9 +220,8 @@ foreach my $email (@emails) {
 	$out =~ s/%email%/$email/g;
 	$out =~ s/%status%/$status/g;
 	$out =~ s/%reason%/$reason/g;
-	print $out;
 
-	$pm->finish; # do the exit in the child process
+	$pm->finish(0, \$out); # do the exit in the child process
 }
 $pm->wait_all_children;
 
