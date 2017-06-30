@@ -3,6 +3,11 @@ NAME
 
 USAGE
             ./verify-emails.pl [OPTIONS]
+            
+DEPENDENCIES
+
+    On Ubuntu/Debian install: 
+    $ sudo apt install libmail-checkuser-perl libparallel-forkmanager-perl
 
 OPTIONS
     --emails (required)
